@@ -1,0 +1,42 @@
+  <div class="container shadow bg-light" >
+        <form class="form-signin " style= "border-radius: 10px;">
+                <img class="mb-4" src="" alt="" width="80" height="80">
+                <h1 class="h3 mb-3 font-weight-normal">Inicia Sesión</h1>
+                <label for="inputEmail" class="sr-only">Email </label>
+                <input type="email" id="inputEmail" name = "email" class="form-control" placeholder="Email " [(ngModel)]= "email" required="" autofocus="">
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input type="password" id="inputPassword" name = "pass" class="form-control" placeholder="Password" required="" [(ngModel)]= "pass">
+                <div class="checkbox mb-3">
+                </div>
+                <button class="btn btn-lg btn-primary btn-block" type="submit" (click) = "login()" >Iniciar Sesión</button>
+                <div>
+                    <button type="button" class="btn btn-link" data-toggle="modal" data-target="#exampleModalCenter">
+                        <i><span class="mt-5 mb-3 text-muted"> Recuperar Contraseña</span></i>
+                        </button>
+                </div>
+              <!-- <a routerLink="../registro"><i><span class="mt-5 mb-3 text-muted">No tienes cuenta?. Crea una aquí</span></i></a>--> 
+                <p class="mt-5 mb-3 text-muted">© AurumGamer 2020</p>
+                </form>
+
+ 
+    <!--        <div class="tab-pane fade " id="empresas" role="tabpanel" aria-labelledby="empresas-tab">
+   <form class="form-signin">
+                <img class="mb-4" src="../../../../assets/logo.png" alt="" width="72" height="72">
+                <h1 class="h3 mb-3 font-weight-normal">Regístrate</h1>
+                <label for="inputNombre" class="sr-only">Nombre </label>
+                <input type="text" #inputnombre  name = "nombre" class="form-control" placeholder="Nombre completo" (keyup)="primeraMayuscula(inputnombre)" [(ngModel)]= "nombre" required="true" autocomplete="orr"autofocus="" >
+                <label for="inputEmail" class="sr-only">Email </label>
+                <input type="email"  name = "email" class="form-control" placeholder="Email " [(ngModel)]= "email" required="true" >
+                <label for="inputPassword" class="sr-only">Crear Constraseña</label>
+                <input type="password" name = "pass" class="form-control" placeholder="Crear contraseña" required="true" [(ngModel)]= "pass">
+                <label for="inputRepPass" class="sr-only">Repetir contraseña </label>
+                <input type="password"  #repass name = "repass" class="form-control" placeholder="Repetir contraseña "[(ngModel)]= "pass2" (keyup)= "verifPassRep(repass)" required="true" >
+                <label for="inputPhone" class="sr-only">Teléfono </label>
+                <input type="text"  name = "phone" class="form-control" placeholder="Teléfono " [(ngModel)]= "telefono" required="" onKeypress="if (event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" >
+                <button class="btn btn-lg btn-primary btn-block" type="submit" (click)="registrarPersona(email, pass, pass2, telefono, nombre)">Registrarme</button>
+                <a routerLink="../login"><i><span class="mt-5 mb-3 text-muted">Ya tengo cuenta</span></i></a>
+                <p class="mt-5 mb-3 text-muted">© Maris 2019</p>
+                </form>
+    </div>--> 
+    </div>
+
