@@ -35,6 +35,10 @@ export class MainGuard implements CanActivate, CanActivateChild, CanDeactivate<u
     return true;
   }
 
+  /**
+   * Funcion para verificar si el usuario está logueado
+   * @param url recibe la url de donde se hace la navegacion
+   */
   checkLogin(url?: string): boolean{
     if (this.authService.isLogin) {
       return true;

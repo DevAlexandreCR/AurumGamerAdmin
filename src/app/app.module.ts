@@ -12,6 +12,9 @@ import { AuthService } from './services/auth/auth.service';
 import { MainComponent } from './main/main.component';
 import { Error404Component } from './error404/error404.component';
 import { ToastrModule } from 'ngx-toastr'
+import { PlayerService } from './services/cruds/player.service';
+import { MatchService } from './services/cruds/match.service';
+import { AngularFirestoreModule } from '@angular/fire/firestore'
 
 @NgModule({
   declarations: [
@@ -30,9 +33,10 @@ import { ToastrModule } from 'ngx-toastr'
     }),
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
+    AngularFirestoreModule,
     AppRoutingModule
   ],
-  providers: [AuthService],
+  providers: [AuthService, PlayerService, MatchService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

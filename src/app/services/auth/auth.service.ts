@@ -1,3 +1,6 @@
+/**
+ * Serivcio para la gestion de autenticación
+ */
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from 'firebase';
