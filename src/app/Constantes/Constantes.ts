@@ -30,4 +30,11 @@ export class Constantes {
     public static GAME_PES20 = 'PES20'
     public static GAMES = {fifa19: 'FIFA19', fifa20: 'FIFA20', pes19: 'PES19',pes20: 'PES20'}
 
+    /**
+     * rutas de base de datos
+     */
+    public static MATCH_COLLECTION = 'match'
+    public static PLAYER_COLLECTION = 'player'
+    public static SELECCIONE_UNO = 'seleccione uno' // para elegir el ganador del match
+
 }

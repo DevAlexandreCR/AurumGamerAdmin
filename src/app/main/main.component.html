@@ -1,2 +1,154 @@
-<p>main works!</p>
-<button class="btn btn-danger" (click)= "logout()">salir</button>
+<nav class="navbar navbar-dark bg-dark">
+    <a style="color: white;" class="navbar-brand" href="#">
+      <img src="../../favicon.ico" width="30" height="30" class="d-inline-block align-top" alt="">
+      AurumGamer
+    </a>
+    <form class="form-inline">
+        <button class="btn btn-danger" (click)= "logout()">salir</button>
+      </form>
+  </nav>
+  <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin: 20px;">
+    <li class="nav-item">
+      <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Partidas</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="recarga-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Recargas</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="historial-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">histórico</a>
+    </li>
+  </ul>
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+        <button type="button" class="btn btn-primary" data-toggle="modal" id="btn-crear" (click)="editingMatch(false)" data-target="#crearPartidaModal" >Crear partida</button>
+        <!-- Modal -->
+        <div class="modal fade bd-example-modal-xl" id="crearPartidaModal" tabindex="-1" role="dialog" aria-labelledby="crearPartidaModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="crearPartidaModalTitle">Partida</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                   <div class="form-group">
+                    <div class="input-group mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" class="form-control" name="local" placeholder="Local" aria-label="Local" [(ngModel)]="local_phone" 
+                                (keyup)="findPlayerByPhone('local', local_phone)" aria-describedby="button-addon2">
+                                <div class="form-group">
+                                    <ul *ngFor="let player of filtro_player_local">
+                                      <li>
+                                        <a (click)="selectPlayer(player, my_match, 'local')">{{player.phone}} -- ${{player.balance}}</a>
+                                      </li>
+                                    </ul>
+                                  </div>
+                            </div>
+                            <div class="colcol-sm-2">VS</div>
+                            <div class="col">
+                                <input type="text" class="form-control" name="visitante" placeholder="Visitante" [(ngModel)]="visitante_phone" 
+                                (keyup)="findPlayerByPhone('visitante', visitante_phone)" aria-label="visitante" aria-describedby="button-addon2">
+                                <div class="form-group">
+                                    <ul *ngFor="let player of filtro_player_visitante">
+                                      <li>
+                                        <a (click)="selectPlayer(player, my_match, 'visitante')">{{player.phone}} -- ${{player.balance}}</a>
+                                      </li>
+                                    </ul>
+                                  </div>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="input-group mb-3" style="margin-left: 10%; margin-right: 10%;">
+                        <div class="form-group">
+                            <label for="selectplatform">Seleccione consola</label>
+                            <select class="form-control" id="selectplatform" [(ngModel)]="my_match.platform_match">
+                              <option>PS4</option>
+                              <option>XBOXONE</option>
+                              <option>PC</option>
+                            </select>
+                          </div>
+                          <div class="form-group" style="margin-left: 30px;">
+                            <label for="selectplatform">Seleccione juego</label>
+                            <select class="form-control" id="selectplatform" [(ngModel)]="my_match.game">
+                              <option>FIFA20</option>
+                              <option>PES20</option>
+                              <option>FIFA19</option>
+                              <option>PES19</option>
+                            </select>
+                          </div>
+                      </div>
+                      <div class="input-group mb-3">
+                        <input type="number" class="form-control" style="max-width: 300px;"  id="totaloro" [(ngModel)]="my_match.oro"
+                         placeholder="Total oro" aria-label="oro" aria-describedby="button-addon2">
+                        <label for="form-control" style="margin: 5px;">Oro</label>
+                      </div>
+                      <div class="row" *ngIf="ending">
+                          <div class="col">
+                            <div class="form-group">
+                                <label for="selectwinner">Ganador</label>
+                                <select class="form-control" id="selectwinner" [(ngModel)]="my_match.winner">
+                                  <option>Seleccione uno</option>
+                                  <option>Local</option>
+                                  <option>Visitante</option>
+                                </select>
+                              </div>
+                          </div>
+                          <div class="col">
+                            <div class="input-group mb-3" >
+                                <label for="form-control" style="margin: 5px;">Local</label>
+                                <input type="number" style="max-width: 100px;" class="form-control" id="scorelocal" [(ngModel)]="my_match.score.local"
+                                 placeholder="0" aria-label="score local"
+                                 aria-describedby="button-addon2">
+                              </div>
+                              <div class="input-group mb-3">
+                                <label for="form-control" style="margin: 5px;">Visitante</label>
+                                <input type="number" style="max-width: 100px;" class="form-control" id="scorevisitante" [(ngModel)]="my_match.score.visitante"
+                                 placeholder="0" aria-label="score visitante" aria-describedby="button-addon2">
+                              </div>
+                          </div>
+                      </div>
+                   </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" (click)="setMatch(my_match, editing)">Guardar</button>
+                </div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">fecha</th>
+                <th scope="col">Consola</th>
+                <th scope="col">Game</th>
+                <th scope="col">Local</th>
+                <th scope="col">Visitante</th>
+                <th scope="col">Reto</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let match of matches; let i='index'">
+                <th scope="row">{{i+1}}</th>
+                <td>{{match.date_add}}</td>
+                <td>{{match.platform_match}}</td>
+                <td>{{match.game}}</td>
+                <td>{{match.players.local.phone}}</td>
+                <td>{{match.players.visitante.phone}}</td>
+                <td>{{match.oro}}</td>
+                <td>
+                    <button type="button" class="btn btn-danger">Editar</button>
+                    <button type="button" class="btn btn-primary">Terminar</button>
+                    <button type="button" class="btn btn-warning">Anular</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+    </div>
+    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="recarga-tab">...</div>
+    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="historial-tab">...</div>
+  </div>

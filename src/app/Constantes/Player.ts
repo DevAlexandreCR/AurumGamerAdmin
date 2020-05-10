@@ -10,7 +10,7 @@ export class Player {
     age: number // edad en años
     email: string
     nickname: string // nombre visual para todos los usuarios, debe ser único
-    phone: string // único para cada cuenta
+    phone: string// único para cada cuenta
     balance: number // oro ejm 300 de oro o 300 monedas de oro
     date_addm: number
     platform_to_play: [] // PS4, XBOXONE, PC
