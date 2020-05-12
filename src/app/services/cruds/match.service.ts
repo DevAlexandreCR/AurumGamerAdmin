@@ -27,7 +27,7 @@ export class MatchService {
    */
   updateMatch(match: Match) {
     this.match_doc = this.afs.doc<Match>(`${Constantes.MATCH_COLLECTION}/${match.id}`)
-    return this.match_doc.update(match)
+    return this.match_doc.update( Object.assign({}, match) )
   }
 
   /**
@@ -37,7 +37,10 @@ export class MatchService {
   addMatch(match: Match) {
     const id = this.afs.createId()
     match.id = id
+    match.date_add = new Date()
     const match_collection = this.afs.collection<Match>(Constantes.MATCH_COLLECTION)
-    return match_collection.doc(id).set(match)
+    return match_collection.doc(id).set( Object.assign({}, match) )
   }
+
+
 }

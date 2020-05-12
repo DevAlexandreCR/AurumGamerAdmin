@@ -12,10 +12,10 @@ export class Player {
     nickname: string // nombre visual para todos los usuarios, debe ser único
     phone: string// único para cada cuenta
     balance: number // oro ejm 300 de oro o 300 monedas de oro
-    date_addm: number
+    date_addm: Date
     platform_to_play: [] // PS4, XBOXONE, PC
     games: [Game] // FIFA20, FIFA19, PES20, PES19
-    matches: [] // almacena los ids de las partidas jugadas
+    matches: [string] // almacena las referencias de las partidas jugadas
     pay_account: {
         name: string // nombre completo
         cc: string // cedula de ciudadanía

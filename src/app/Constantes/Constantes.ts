@@ -35,6 +35,5 @@ export class Constantes {
      */
     public static MATCH_COLLECTION = 'match'
     public static PLAYER_COLLECTION = 'player'
-    public static SELECCIONE_UNO = 'seleccione uno' // para elegir el ganador del match
 
 }

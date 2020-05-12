@@ -21,8 +21,9 @@
   <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
         <button type="button" class="btn btn-primary" data-toggle="modal" id="btn-crear" (click)="editingMatch(false)" data-target="#crearPartidaModal" >Crear partida</button>
-        <!-- Modal -->
-        <div class="modal fade bd-example-modal-xl" id="crearPartidaModal" tabindex="-1" role="dialog" aria-labelledby="crearPartidaModalTitle" aria-hidden="true">
+
+        <!-- Modal Partida -->
+        <div class="modal fade bd-example-modal-xl" id="crearPartidaModal"  data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="crearPartidaModalTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
@@ -36,8 +37,10 @@
                     <div class="input-group mb-3">
                         <div class="row">
                             <div class="col">
+                              <form action="" autocomplete="off">
                                 <input type="text" class="form-control" name="local" placeholder="Local" aria-label="Local" [(ngModel)]="local_phone" 
-                                (keyup)="findPlayerByPhone('local', local_phone)" aria-describedby="button-addon2">
+                                (keyup)="findPlayerByPhone('local', local_phone)" aria-describedby="button-addon2" 
+                                maxlength="10" onKeypress="if (event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;">
                                 <div class="form-group">
                                     <ul *ngFor="let player of filtro_player_local">
                                       <li>
@@ -45,11 +48,13 @@
                                       </li>
                                     </ul>
                                   </div>
+                              </form>
                             </div>
                             <div class="colcol-sm-2">VS</div>
                             <div class="col">
                                 <input type="text" class="form-control" name="visitante" placeholder="Visitante" [(ngModel)]="visitante_phone" 
-                                (keyup)="findPlayerByPhone('visitante', visitante_phone)" aria-label="visitante" aria-describedby="button-addon2">
+                                (keyup)="findPlayerByPhone('visitante', visitante_phone)" aria-label="visitante" aria-describedby="button-addon2"
+                                maxlength="10" onKeypress="if (event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;">
                                 <div class="form-group">
                                     <ul *ngFor="let player of filtro_player_visitante">
                                       <li>
@@ -89,35 +94,37 @@
                             <div class="form-group">
                                 <label for="selectwinner">Ganador</label>
                                 <select class="form-control" id="selectwinner" [(ngModel)]="my_match.winner">
-                                  <option>Seleccione uno</option>
-                                  <option>Local</option>
-                                  <option>Visitante</option>
+                                  <option>local</option>
+                                  <option>visitante</option>
                                 </select>
                               </div>
                           </div>
                           <div class="col">
                             <div class="input-group mb-3" >
                                 <label for="form-control" style="margin: 5px;">Local</label>
-                                <input type="number" style="max-width: 100px;" class="form-control" id="scorelocal" [(ngModel)]="my_match.score.local"
-                                 placeholder="0" aria-label="score local"
+                                <input type="number" style="max-width: 100px;" class="form-control" id="scorelocal" [(ngModel)]="score_local"
+                                  aria-label="score local"
                                  aria-describedby="button-addon2">
                               </div>
                               <div class="input-group mb-3">
                                 <label for="form-control" style="margin: 5px;">Visitante</label>
-                                <input type="number" style="max-width: 100px;" class="form-control" id="scorevisitante" [(ngModel)]="my_match.score.visitante"
-                                 placeholder="0" aria-label="score visitante" aria-describedby="button-addon2">
+                                <input type="number" style="max-width: 100px;" class="form-control" id="scorevisitante" [(ngModel)]="score_visitante"
+                                 aria-label="score visitante" aria-describedby="button-addon2">
                               </div>
                           </div>
                       </div>
                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" (click)="setMatch(my_match, editing)">Guardar</button>
+                    <button type="button" class="btn btn-secondary"  data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" *ngIf="!ending" data-dismiss="modal" (click)="setMatch(my_match, editing)">Guardar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" *ngIf="ending" (click)="endMatch(my_match)">Terminar</button>
                 </div>
                 </div>
             </div>
         </div>
+
+        <!-- Table Partidas en curso-->
         <table class="table table-hover">
             <thead>
               <tr>
@@ -134,21 +141,113 @@
             <tbody>
               <tr *ngFor="let match of matches; let i='index'">
                 <th scope="row">{{i+1}}</th>
-                <td>{{match.date_add}}</td>
+                <td>{{ verFecha(match.date_add) }}</td>
                 <td>{{match.platform_match}}</td>
                 <td>{{match.game}}</td>
-                <td>{{match.players.local.phone}}</td>
-                <td>{{match.players.visitante.phone}}</td>
+                <td>{{match.local.phone}}</td>
+                <td>{{match.visitante.phone}}</td>
                 <td>{{match.oro}}</td>
                 <td>
-                    <button type="button" class="btn btn-danger">Editar</button>
-                    <button type="button" class="btn btn-primary">Terminar</button>
-                    <button type="button" class="btn btn-warning">Anular</button>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" id="btn-editar" (click)="editingMatch(true, match)" data-target="#crearPartidaModal">Editar</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" id="btn-terminar" (click)="endingMatch(true, match)" data-target="#crearPartidaModal">Terminar</button>
+                    <button type="button" class="btn btn-warning" id="btn-anular" >Anular</button>
                 </td>
               </tr>
             </tbody>
           </table>
     </div>
-    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="recarga-tab">...</div>
+    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="recarga-tab">
+      
+      <!-- Recargas -->
+      <div class="row">
+        <div class="col">
+          <div class="container shadow " style="max-width: 50%; padding: 20px;">
+            <form autocomplete="off" >
+              <div class="form-group">
+                <label for="inputphone">Telefono Usuario</label>
+                <input type="text" name="inputphone" class="form-control" id="inputphone" aria-describedby="phoneHelp"(keyup)="findPlayerByPhone('local', phone_player)"
+                 [(ngModel)]="phone_player" maxlength="10" onKeypress="if (event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;">
+                <small id="phoneHelp" class="form-text text-muted">ingrese el telefono del usuario que desea recargar</small>
+                <div class="form-group">
+                  <ul *ngFor="let player of filtro_player_local">
+                    <li>
+                      <a (click)="selectPlayer(player, null, '')">{{player.phone}} : ${{player.email}}</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="exampleInputPassword1">Valor a recargar</label>
+                <input type="number" name="inputOro" class="form-control" id="inputOro" [(ngModel)]="oro_reload">
+              </div>
+              <div class="form-group">
+                <label for="inputComprobante">Comprobante de pago</label>
+                <input type="file" class="form-control-file" id="inputComprobante" >
+              </div>
+              <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#modalRecarga" >Enviar</button>
+            </form>
+          </div>
+        </div>
+        <div class="col" style="padding-right: 5%;" *ngIf="player_selected.name">
+          <form >
+            <div class="form-group" >
+              <label for="inputPlayerName">Nombre</label>
+              <input type="text" name="inputPlayerName" class="form-control" id="inputPlayerName" readonly [(ngModel)]="player_selected.name">
+            </div>
+            <div class="form-group" >
+              <label for="inputPlayerEmail">Email</label>
+              <input type="email" name="inputPlayerEmail" class="form-control" id="inputPlayerEmail" readonly [(ngModel)]="player_selected.email">
+            </div>
+            <div class="form-group">
+              <label for="inputPlayerPhone">Telefono</label>
+              <input type="text" name="inputPlayerPhone" class="form-control" id="inputPlayerPhone" readonly [(ngModel)]="player_selected.phone">
+            </div>
+            <div class="form-group" >
+              <label for="inputPlayerAge">Edad</label>
+              <input type="number" name="inputPlayerAge" class="form-control" id="inputPlayerAge" readonly [(ngModel)]="player_selected.age">
+            </div>
+            <div class="form-group" >
+              <label for="inputPlayerbalance">Balance</label>
+              <input type="text" name="inputPlayerbalance" class="form-control" id="inputPlayerbalance" readonly [(ngModel)]="player_selected.balance">
+            </div>
+            <div class="form-group" >
+              <label for="inputPlayerNickName">NickName</label>
+              <input type="text" name="inputPlayerNickName" class="form-control" id="inputPlayerNickName" readonly [(ngModel)]="player_selected.nickname">
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal Confirmar recarga -->
+      <div class="modal fade" id="modalRecarga" tabindex="-1" role="dialog" aria-labelledby="modalRecarga" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalRecarga">Confirmar Recarga</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group row" *ngIf="player_selected">
+                <label for="staticEmail" class="col-sm-2 col-form-label">Telefono</label>
+                <div class="col-sm-10">
+                  <input type="text" name="staticPhone" readonly class="form-control-plaintext" id="staticPhone" [(ngModel)]="player_selected.phone">
+                </div>
+                <label for="staticOro" class="col-sm-2 col-form-label">Oro</label>
+                <div class="col-sm-10">
+                  <input type="number" name="staticOro" readonly class="form-control-plaintext" id="staticOro" [(ngModel)]="oro_reload">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
     <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="historial-tab">...</div>
   </div>

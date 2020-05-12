@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
@@ -24,7 +24,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore'
     Error404Component
   ],
   imports: [
-    BrowserModule,
+    CommonModule,
     FormsModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot({

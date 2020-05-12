@@ -7,6 +7,7 @@ import { MatchService } from '../services/cruds/match.service';
 import { ToastrService } from 'ngx-toastr';
 import { Constantes } from '../Constantes/Constantes';
 
+
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
@@ -16,27 +17,27 @@ export class MainComponent implements OnInit {
 
   players: Player[]
   matches: Match[]
-  /**
-   * partida seleccionada, ya sea para crear o editar
-   */
+  /** partida seleccionada, ya sea para crear o editar */
   local_phone: string = ''
-  visitante_phone = ''
+  visitante_phone: string = ''
+  score_local: number = 0
+  score_visitante: number = 0
   filtro_player_local: Player[] = []
   filtro_player_visitante: Player[] = []
   my_match: Match = new Match()
-  /**
-   * para saber si se crea una partida o si se agrega una nueva
-   */
+  /** para saber si se crea una partida o si se agrega una nueva */
   editing: boolean = false
-  /**
-   * para saber si se esta terminando la partida
-   */
+  /** para saber si se esta terminando la partida */
   ending: boolean = false
+
+  /** usado para buscar un jugador para recargas */
+  phone_player: string
+  player_selected: Player
+  oro_reload: number = 0
 
   constructor(private authService: AuthService, private playerService: PlayerService, 
               private matchService: MatchService, private toast: ToastrService) {
-                this.my_match.local = new Player()
-                this.my_match.visitante = new Player()
+                this.resetMatch()
                }
 
   ngOnInit(): void {
@@ -54,9 +55,9 @@ export class MainComponent implements OnInit {
      * traemos la lista de las partidas y quedamos a la escucha de cualquier cambio
      * para que se actualice automaticamente
      */
-    this.matchService.getMatchPlaying().valueChanges(matches => {
+    this.matchService.getMatchPlaying().valueChanges().subscribe( matches => {
       this.matches = matches
-      console.log(this.matches);
+      console.log(matches);
       
     })
 
@@ -68,16 +69,26 @@ export class MainComponent implements OnInit {
    */
   editingMatch(isEditing: boolean, match?: Match) {
     this.editing = isEditing
-    if (isEditing) { this.my_match = match}
-    else { this.my_match = new Match()}
+    this.ending = false
+    if (isEditing) { 
+      this.my_match = match
+      this.local_phone = this.my_match.local.phone
+      this.visitante_phone = this.my_match.visitante.phone
+    }
+    else { 
+      this.resetMatch()
+    }
   }
 
   /**
    * 
    * @param isEnding se va a terminar la partida?
    */
-  endingMatch(isEnding: boolean) {
+  endingMatch(isEnding: boolean, match: Match) {
+    this.my_match = match
     this.ending = isEnding
+    this.local_phone = this.my_match.local.phone
+    this.visitante_phone = this.my_match.visitante.phone
   }
   /**
    * funcion para editar o crear una partida
@@ -90,11 +101,7 @@ export class MainComponent implements OnInit {
       if (editing){ // para editar partida
         this.matchService.updateMatch(match).then(()=>{
           this.toast.success('Partida guardada correctamente', 'Edición terminada')
-          this.editing = false
-          this.ending = false
-          this.my_match = new Match()
-          this.my_match.local = new Player()
-          this.my_match.visitante = new Player()
+          this.resetMatch()
         }).catch(reason =>{
           this.toast.error(reason, 'ha ocurrido un error')
         })
@@ -112,16 +119,19 @@ export class MainComponent implements OnInit {
    * funcion que termina la partida asignando un ganador
    * @param match partida a terminar
    */
-  endMatch(match) {
+  endMatch(match: Match) {
     if (this.validMatch(match, true) ) {
       match.state = Constantes.MATCH_END
+      /**
+       * si no se agrego marcador, entonces asignamos la diferencia minima al partido
+       */
+      if (this.score_local == 0 && this.score_visitante == 0) {
+        if ( match.winner == Constantes.MATCH_LOCAL) { match.score.local = 1; match.score.visitante = 0 }
+        else { match.score.local = 0; match.score.visitante = 1 }
+      } else { match.score.local = this.score_local; match.score.visitante = this.score_visitante}
       this.matchService.updateMatch(match).then(()=>{
         this.toast.success('Partida guardada correctamente', 'Edición terminada')
-        this.editing = false
-        this.ending = false
-        this.my_match = new Match()
-        this.my_match.local = new Player()
-        this.my_match.visitante = new Player()
+        this.resetMatch()
       }).catch(reason =>{
         this.toast.error(reason, 'ha ocurrido un error')
       })
@@ -135,15 +145,23 @@ export class MainComponent implements OnInit {
    */
   validMatch(match: Match, endingMatch: boolean): boolean {
     if (!endingMatch) {
-      if (match.local != undefined && match.visitante != undefined) {
+      if (match.local.name != undefined && match.visitante.name != undefined) {
         if (match.oro > 1000){ return true}
         else { this.toast.error('Agregue una cantidad válida', 'Agregue oro'); return false}
       } else { this.toast.error('selesccione un jugador', 'No seleccionó jugador'); return false}
     }
     else {
-      if (match.winner != '') { return true}
+      if (match.winner != undefined) { return true}
       else { this.toast.error('selesccione un ganador', 'No seleccionó ganador'); return false }
     }
+  }
+
+  /**
+   * para que no se escriban letras en el telefono devuelve falso si no se escribe un numero
+   * @param str string a validar
+   */
+  isDigit(str: string) {
+    return str && !/[^\d]/.test(str);
   }
 
   /**
@@ -151,6 +169,7 @@ export class MainComponent implements OnInit {
    * @param phone telefono a buscar
    */
   findPlayerByPhone(isLocalOrVisitor: string, phone: string) {
+    if (phone == undefined) return
     this.filtro_player_local = []
     this.filtro_player_visitante = []
     for (const i in this.players) {
@@ -193,8 +212,11 @@ export class MainComponent implements OnInit {
         this.filtro_player_visitante = []
         break
       default:
+        this.phone_player = player.phone
+        this.player_selected = player
+        this.filtro_player_local = []
         break;
-    }    
+    }   
   }
 
   /**
@@ -203,5 +225,45 @@ export class MainComponent implements OnInit {
   logout(){
     this.authService.logout()
   }
+
+  /**
+   * vovlemos los valor de la partida a 0
+   */
+  resetMatch() {
+    this.my_match = new Match()
+    this.editing = false
+    this.ending = false
+    this.score_local = 0
+    this.score_visitante = 0
+    this.local_phone = ''
+    this.visitante_phone = ''
+    this.phone_player = ''
+    this.player_selected = new Player()
+    this.oro_reload = 0
+  }
+
+  verFecha(date: firebase.firestore.Timestamp): string {    
+    let  fecha = date.toDate()
+    let dd = fecha.getDate()
+        let mm = fecha.getMonth() + 1;
+        let yyyy = fecha.getFullYear();
+        let hh = fecha.getHours()
+        let min = fecha.getMinutes()
+        dd = this.addZero(dd);
+        mm = this.addZero(mm);
+ 
+        return dd+'/'+mm+'/'+':'+hh+':'+min;
+  }
+
+  /**
+   * funcion para agregar un cero a los dias y meses
+   * @param i dia o mes
+   */
+  addZero(i: any) {
+    if (i < 10) {
+        i = '0' + i;
+    }
+    return i;
+}
 
 }
