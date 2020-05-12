@@ -6,6 +6,7 @@ import { Match } from '../Constantes/Match';
 import { MatchService } from '../services/cruds/match.service';
 import { ToastrService } from 'ngx-toastr';
 import { Constantes } from '../Constantes/Constantes';
+import { StorageService } from '../services/cruds/storage.service';
 
 
 @Component({
@@ -34,9 +35,12 @@ export class MainComponent implements OnInit {
   phone_player: string
   player_selected: Player
   oro_reload: number = 0
+  /** para ver el procentage de carga del comprobante de pagos */
+  porcentaje: number = 0
+  comprobante: any = null
 
   constructor(private authService: AuthService, private playerService: PlayerService, 
-              private matchService: MatchService, private toast: ToastrService) {
+              private matchService: MatchService, private toast: ToastrService, private storage: StorageService) {
                 this.resetMatch()
                }
 
@@ -79,7 +83,6 @@ export class MainComponent implements OnInit {
       this.resetMatch()
     }
   }
-
   /**
    * 
    * @param isEnding se va a terminar la partida?
@@ -264,6 +267,41 @@ export class MainComponent implements OnInit {
         i = '0' + i;
     }
     return i;
+}
+
+recargarSaldo(player: Player, oro: number) {
+  console.log('recargar saldo', player);
+  player.balance += oro 
+  let name = new Date().toString()
+  let id_player = player.id
+  let ruta = `${Constantes.RUTA_COMPROBANTES}/${id_player}/${name}`
+  let ref = this.storage.getReference(ruta)
+  let task = this.storage.upload(ruta, this.comprobante)
+  task.percentageChanges().subscribe(porcentaje => {
+    this.porcentaje = Math.round(porcentaje)
+    if (this.porcentaje == 100) {
+      this.porcentaje = 0
+      this.comprobante = null
+      console.log(ref.getDownloadURL())
+      this.playerService.updatePlayer(player).then(()=>{
+        this.toast.success('Saldo cargado al jugador', 'Recarga exitosa!')
+        this.player_selected = new Player()
+        this.oro_reload = 0
+        this.phone_player = ''
+      }).catch(rej => {
+        this.toast.error(rej, 'Error al cargar el saldo')
+      })
+    }
+  })
+}
+
+/** guarda el archivo seleccionado en la variable comprobante */
+selectFile(event) {
+  if (event.target.files.length > 0) {
+    for (let i = 0; i < event.target.files.length; i++) {
+      this.comprobante = event.target.files[i]         
+    }
+  }
 }
 
 }

@@ -15,6 +15,7 @@ import { ToastrModule } from 'ngx-toastr'
 import { PlayerService } from './services/cruds/player.service';
 import { MatchService } from './services/cruds/match.service';
 import { AngularFirestoreModule } from '@angular/fire/firestore'
+import { AngularFireStorageModule } from "@angular/fire/storage";
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore'
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     AngularFirestoreModule,
+    AngularFireStorageModule,
     AppRoutingModule
   ],
   providers: [AuthService, PlayerService, MatchService],

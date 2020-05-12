@@ -35,5 +35,7 @@ export class Constantes {
      */
     public static MATCH_COLLECTION = 'match'
     public static PLAYER_COLLECTION = 'player'
+    /** para el acceso a los archivos de los comprobantes */
+    public static RUTA_COMPROBANTES = 'comprobantes'
 
 }

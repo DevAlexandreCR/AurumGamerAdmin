@@ -10,7 +10,7 @@ const routes: Routes = [
   { path: '', component: AppComponent, canActivate: [MainGuard]},
   { path: 'main', component:MainComponent},
   { path: 'login', component: LoginComponent},
-  { path: '**' , redirectTo: ''}
+  { path: '**' , redirectTo: 'error404'}
 ];
 
 @NgModule({
