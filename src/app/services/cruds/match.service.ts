@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/firestore/';
 import { AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore/public_api';
 import { Match } from 'src/app/Constantes/Match';
 import { Constantes } from 'src/app/Constantes/Constantes';
+import { merge } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,7 @@ export class MatchService {
    */
   updateMatch(match: Match) {
     this.match_doc = this.afs.doc<Match>(`${Constantes.MATCH_COLLECTION}/${match.id}`)
-    return this.match_doc.update( Object.assign({}, match) )
+    return this.match_doc.set( Object.assign({}, match), { merge: true } )
   }
 
   /**

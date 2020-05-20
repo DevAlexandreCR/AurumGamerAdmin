@@ -144,7 +144,7 @@ export class MainComponent implements OnInit {
   /**
    * valida que los datos de la partida sean correctos
    * @param match 
-   * @param editing 
+   * @param endingMatch si true verifica ganador default es false
    */
   validMatch(match: Match, endingMatch: boolean): boolean {
     if (!endingMatch) {

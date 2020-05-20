@@ -31,9 +31,11 @@ export class PlayerService {
     return this.player_doc = this.afs.doc<Player>(`player/${id}`)
   }
 
+
   updatePlayer(player: Player) {
+    /** se realiza cambio de .update por .set porque no se conservaban los datos anteriores, lo cual se soluciono con el merge: true */
     this.player_doc = this.afs.doc<Player>(`${Constantes.PLAYER_COLLECTION}/${player.id}`)
-    return this.player_doc.update( Object.assign({}, player) )
+    return this.player_doc.set( Object.assign({}, player), { merge: true } )
   }
 
 
