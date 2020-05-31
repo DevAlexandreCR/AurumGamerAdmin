@@ -9,17 +9,21 @@
   </nav>
   <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin: 20px;">
     <li class="nav-item">
-      <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Partidas</a>
+      <a class="nav-link active" id="partidas-tab" data-toggle="tab" href="#partidas" role="tab" aria-controls="partidas" aria-selected="true">Partidas</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" id="recarga-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Recargas</a>
+      <a class="nav-link" id="recarga-tab" data-toggle="tab" href="#recarga" role="tab" aria-controls="recarga" aria-selected="false">Recargas</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" id="historial-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">histórico</a>
+      <a class="nav-link" id="pagos-tab" data-toggle="tab" href="#pagos" role="tab" aria-controls="pagos" aria-selected="false">
+        Pagos <span class="badge badge-danger" name="payments_pending" *ngIf="payments_pendings.length > 0">{{payments_pendings.length}}</span></a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="historial-tab" data-toggle="tab" href="#historial" role="tab" aria-controls="historial" aria-selected="false">histórico</a>
     </li>
   </ul>
   <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+    <div class="tab-pane fade show active" id="partidas" role="tabpanel" aria-labelledby="partidas-tab">
         <button type="button" class="btn btn-primary" data-toggle="modal" id="btn-crear" (click)="editingMatch(false)" data-target="#crearPartidaModal" >Crear partida</button>
 
         <!-- Modal Partida -->
@@ -156,7 +160,7 @@
             </tbody>
           </table>
     </div>
-    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="recarga-tab">
+    <div class="tab-pane fade" id="recarga" role="tabpanel" aria-labelledby="recarga-tab">
       
       <!-- Recargas -->
       <div class="row">
@@ -252,5 +256,154 @@
       </div>
       
     </div>
-    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="historial-tab">...</div>
+    <div class="tab-pane fade" id="pagos" role="tabpanel" aria-labelledby="pagos-tab">
+      <div class="container">
+        <div class="row">
+          <div class="col col-sm-4">
+            <ul class="list-group" *ngFor="let payment of payments_pendings">
+              <li class="list-group-item list-group-item-danger">Pagos pendientes</li>
+              <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+              (click)="selectPaymentRequest(payment)">
+                {{payment.player.name}}
+                <span class="badge badge-primary badge-pill">{{payment.cash}}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="col">
+            <!-- pago de retiros -->
+            <div
+              aria-hidden="true"
+              class="constainer bg-dark shadow"
+              id="divCash"
+              role="dialog"
+              tabindex="-1"
+              style="padding-top: 1rem; padding-bottom: 1rem; border-radius: 5px;"
+              name="pagos_pendientes"
+              *ngIf="payment_request != undefined"
+            >
+              <div class="modal-dialog" style="border-width: 0px; border-color: white !important"  >
+                <div class="modal-content">
+                  <div class="modal-header justify-content-center">
+                    <div class="text-muted text-center ml-auto mr-auto">
+                      <h3 class="mb-0">Pagar retiro</h3>
+                    </div>
+                    <button
+                    aria-hidden="true"
+                    class="close"
+                    (click)="payment_request = undefined"
+                  >X</button>
+                  </div>
+                  <div class="modal-body ">
+                    <form role="form">
+                      <div class="form-group">
+                        <label for="name_account">Nombre Completo</label>
+                        <input type="text" class="form-control" id="name_account" name="name_account" aria-describedby="namelHelp" placeholder="Enter full name"
+                        [(ngModel)]="payment_request.pay_account.name" disabled>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-4">
+                          <label for="inputTypeDoc">Tipo </label>
+                          <select id="inputTypeDoc" class="form-control" disabled>
+                            <option selected>CC</option>
+                          </select>
+                        </div>
+                        <div class="form-group col-md">
+                          <label for="cc_account">Número de identificacion</label>
+                          <input type="number" class="form-control" id="cc_account" name="cc_account" aria-describedby="cclHelp" placeholder="Enter ID"
+                          [(ngModel)]="payment_request.pay_account.cc" disabled>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-4">
+                          <label for="inputBanco">Banco </label>
+                          <select id="inputBanco" class="form-control" name="bank" [(ngModel)]="payment_request.pay_account.bank" disabled>
+                            <option>Nequi</option>
+                            <option>Bancolombia</option>
+                          </select>
+                        </div>
+                        <div class="form-group col-md">
+                          <label for="number_account">Número de cuenta</label>
+                          <input type="number" class="form-control" id="number_account" name="number_account" aria-describedby="num_acclHelp" placeholder="number account"
+                          [(ngModel)]="payment_request.pay_account.number_account" disabled>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-4">
+                          <label for="player_balance">Disponible</label>
+                          <input type="number" class="form-control" id="player_balance" name="player_balance" aria-describedby="num_acclHelp" placeholder="0 COP" disabled
+                          [(ngModel)]="payment_request.previus_balance">
+                        </div>
+                        <div class="form-group col-md">
+                          <label for="cash_to_pay">Valor a retirar</label>
+                          <input type="number" class="form-control" id="cash_to_pay" name="cash_to_pay" aria-describedby="cash_to_paylHelp" placeholder="0 COP"
+                          [(ngModel)]="payment_request.cash" disabled>
+                        </div>
+                      </div>
+                      <div class="text-center">
+                        <button class="btn btn-warning my-4" name="change_photo" type="button" 
+                        data-toggle="modal"
+                        data-target="#rejectModal"
+                        >
+                          Rechazar
+                        </button>
+                        <button class="btn btn-primary my-4" name="change_photo" type="button"
+                        data-toggle="modal"
+                        data-target="#payModal"
+                        >
+                          Pagar
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Modal pagar-->
+            <div class="modal fade" id="payModal" #payModal tabindex="-1" role="dialog" aria-labelledby="payModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmar pago</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body" *ngIf="payment_request">
+                    Confirma el pago de {{payment_request.cash}}COP 
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" name="payButton" (click)="pay_manager(payment_request, 'pay')">Confirmar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Modal reject-->
+            <div class="modal fade" id="rejectModal" #rejectModal tabindex="-1" role="dialog" aria-labelledby="rejectLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Rechazar pago</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body" *ngIf="payment_request">
+                    <div class="form-group">
+                      <label for="reject">Razon del rechazo</label>
+                      <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
+                      id="reject" name="reject" aria-describedby="rejectHelp" placeholder="Escriba por que se rechaza"
+                      [(ngModel)]="payment_request.reason"></textarea>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-success" name="rejectButton" data-dismiss="modal" (click)="pay_manager(payment_request, 'reject' )">Enviar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="historial" role="tabpanel" aria-labelledby="historial-tab">...</div>
   </div>

@@ -7,6 +7,7 @@ import { MatchService } from '../services/cruds/match.service';
 import { ToastrService } from 'ngx-toastr';
 import { Constantes } from '../Constantes/Constantes';
 import { StorageService } from '../services/cruds/storage.service';
+import { PaymentRquest } from '../Constantes/PaymentRquest';
 
 
 @Component({
@@ -38,6 +39,8 @@ export class MainComponent implements OnInit {
   /** para ver el procentage de carga del comprobante de pagos */
   porcentaje: number = 0
   comprobante: any = null
+  payments_pendings: any[] = []
+  payment_request: PaymentRquest
 
   constructor(private authService: AuthService, private playerService: PlayerService, 
               private matchService: MatchService, private toast: ToastrService, private storage: StorageService) {
@@ -52,7 +55,6 @@ export class MainComponent implements OnInit {
      */
     this.playerService.getPlayersCollection().valueChanges().subscribe(players => {
       this.players = players
-      console.log(this.players)
     })
 
     /**
@@ -60,11 +62,32 @@ export class MainComponent implements OnInit {
      * para que se actualice automaticamente
      */
     this.matchService.getMatchPlaying().valueChanges().subscribe( matches => {
-      this.matches = matches
-      console.log(matches);
-      
+      this.matches = matches      
     })
 
+    this.playerService.getPendingPayments().valueChanges().subscribe(snapshot => {
+      this.payments_pendings = []
+      if (snapshot.length < 1) return 
+      else {
+        snapshot.forEach(pay => {
+          if(pay.state === Constantes.STATE_PAYMENT_PENDING) {
+            this.payments_pendings.push(pay)
+          }
+        })
+      }
+    })
+
+  }
+
+  selectPaymentRequest(payment: any) {
+    this.payment_request = new PaymentRquest()
+    this.payment_request.cash = payment.cash
+    this.payment_request.date_add = payment.date_add
+    this.payment_request.id = payment.id
+    this.payment_request.pay_account = payment.pay_account
+    this.payment_request.player = payment.player
+    this.payment_request.previus_balance = payment.previus_balance
+    this.payment_request.state = payment.state
   }
 
   /**
@@ -302,6 +325,26 @@ selectFile(event) {
       this.comprobante = event.target.files[i]         
     }
   }
+}
+
+pay_manager(payment_request: PaymentRquest, action: string) {  
+  if(payment_request == undefined) return
+  switch(action) {
+    case 'pay':
+      payment_request.state = Constantes.STATE_PAYMENT_SUCCESS
+      payment_request.reason = 'pagado exitosamente'
+    break
+    case 'reject':
+      payment_request.state = Constantes.STATE_PAYMENT_REJECTED
+    break
+  }
+  payment_request.date_modifi = new Date()
+  this.playerService.updatePaymentRequest(payment_request)
+  .then(()=>{ 
+    this.toast.success('Se actualizo el estado del pago', 'Pagado')
+    this.payment_request = undefined
+  })
+  .catch(e=>{this.toast.error(e.message, e.code)})
 }
 
 }

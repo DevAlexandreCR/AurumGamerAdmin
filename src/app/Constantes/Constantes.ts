@@ -35,7 +35,13 @@ export class Constantes {
      */
     public static MATCH_COLLECTION = 'match'
     public static PLAYER_COLLECTION = 'player'
+    public static PAYMENTS_REQUEST = 'payment_request'
     /** para el acceso a los archivos de los comprobantes */
     public static RUTA_COMPROBANTES = 'comprobantes'
+
+    /** estados de los pagos */
+    public static STATE_PAYMENT_PENDING = 'pendiente'
+    public static STATE_PAYMENT_SUCCESS = 'aprobado'
+    public static STATE_PAYMENT_REJECTED = 'rechazado'
 
 }

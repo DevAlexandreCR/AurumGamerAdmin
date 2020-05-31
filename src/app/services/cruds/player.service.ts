@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/firestore/';
 import { Player } from 'src/app/Constantes/Player';
 import { AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore/public_api';
 import { Constantes } from 'src/app/Constantes/Constantes';
+import { PaymentRquest } from 'src/app/Constantes/PaymentRquest';
 
 
 @Injectable({
@@ -38,5 +39,13 @@ export class PlayerService {
     return this.player_doc.set( Object.assign({}, player), { merge: true } )
   }
 
+  getPendingPayments(){
+    return this.afs.collection<PaymentRquest>(Constantes.PAYMENTS_REQUEST)
+  }
+
+  updatePaymentRequest(payment_request: PaymentRquest) {
+    return this.afs.doc<PaymentRquest>(`${Constantes.PAYMENTS_REQUEST}/${payment_request.id}`)
+                      .set(Object.assign({}, payment_request), {merge: true})
+  }
 
 }
